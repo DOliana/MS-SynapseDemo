@@ -11,7 +11,9 @@ on:
       - 'functions/**'      
   workflow_dispatch:
 
-permissions: read-all
+permissions:
+      contents: read
+      packages: write
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '/functions' # set this to the path to your web app project, defaults to the repository root
