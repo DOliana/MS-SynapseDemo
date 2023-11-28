@@ -3,7 +3,7 @@
 
 name: Build and deploy dotnet core app to Azure Function App - doli-synapse-funcs
 
-on: |+
+on:
   push:
     branches:
       - main
