@@ -3,29 +3,23 @@
 
 name: Build and deploy dotnet core app to Azure Function App - doli-synapse-funcs
 
-on: 
+on: |+
   push:
     branches:
       - main
-    paths:
-      - 'functions/**'      
   workflow_dispatch:
 
-permissions: read-all
-
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '/functions' # set this to the path to your web app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '6.0.x' # set this to the dotnet version to use
 
 jobs:
   build-and-deploy:
     runs-on: windows-latest
-    permissions:
-      id-token: write #This is required for requesting the JWT
-
+    
     steps:
       - name: 'Checkout GitHub Action'
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
 
       - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@v1
@@ -39,13 +33,6 @@ jobs:
           dotnet build --configuration Release --output ./output
           popd
       
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D9E02DF4826D4FFBB907FAD84BC8DD76 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6003A94BF1624C47A486E069C8548122 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A90DB1BA92A1439E9B441CFC01417DC4 }}
-
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
@@ -53,4 +40,4 @@ jobs:
           app-name: 'doli-synapse-funcs'
           slot-name: 'Production'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_89DBBFA2C6614C28B0B2EE866EAE7D6E }}
