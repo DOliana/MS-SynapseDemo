@@ -12,5 +12,6 @@ namespace synapse_funcs
         public string SourceContainerName { get; set; }
         public string TargetContainerName { get; set; }
         public string TargetFolderPath { get; set; }
+        public string RunId { get; set; }
     }
 }

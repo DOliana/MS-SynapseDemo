@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using System.Net;
+using System.Text;
 
 namespace synapse_funcs
 {
@@ -59,16 +60,21 @@ namespace synapse_funcs
                     log.LogInformation($"processing zipped entry {entry.FullName}");
                     await using var fileStream = entry.Open();
                     var targetPath = Path.Combine(parameters.TargetFolderPath, entry.Name);
-                    if(await targetContainer.GetBlobClient(targetPath).DeleteIfExistsAsync()) { log.LogInformation($"target file existed - overwriting. {targetPath}"); }
-                    await targetContainer.UploadBlobAsync(Path.Combine(parameters.TargetFolderPath, entry.Name), fileStream);
+                    if (await targetContainer.GetBlobClient(targetPath).DeleteIfExistsAsync()) { log.LogInformation($"target file existed - overwriting. {targetPath}"); }
+                    await targetContainer.UploadBlobAsync(targetPath, fileStream);
                     files.Add(entry.Name);
                 }
                 files.Sort();
 
+                var fileList = targetContainer.GetBlobClient(Path.Combine(parameters.TargetFolderPath, parameters.RunId));
+                using var ms = new MemoryStream(Encoding.UTF8.GetBytes(String.Join(Environment.NewLine, files)));
+                await fileList.UploadAsync(ms, overwrite: true);
+
                 return new OkObjectResult(new
                 {
                     writtenFileCount = files.Count,
-                    files = files
+                    files = files,
+                    fileList = Path.Combine(parameters.TargetFolderPath, parameters.RunId)
                 });
             }
             catch (Exception ex)
