@@ -8,7 +8,8 @@ on:
     branches:
       - main
     paths:
-      - 'functions/**'     
+      - 'functions/**'
+      - '.github/workflows/main_doli-synapse-funcs.yml'
   workflow_dispatch:
 
 env:
@@ -41,5 +42,5 @@ jobs:
         with:
           app-name: 'doli-synapse-funcs'
           slot-name: 'Production'
-          package: './output'
+          package: './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_89DBBFA2C6614C28B0B2EE866EAE7D6E }}
