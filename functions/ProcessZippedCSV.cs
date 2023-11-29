@@ -41,7 +41,7 @@ namespace synapse_funcs
                 new Uri($"https://{sourceStorageAccountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
             var sourceContainer = sourceStorageClient.GetBlobContainerClient(sourceContainerName);
-            
+
             var targetStorageClient = new BlobServiceClient(
                 new Uri($"https://{targetStorageAccountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
@@ -50,8 +50,10 @@ namespace synapse_funcs
 
             try
             {
+                if (await targetContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the target container {targetContainerName} dose not exist."); }
+
                 var zippedBlob = sourceContainer.GetBlobClient(sourceFilepath);
-                if(await zippedBlob.ExistsAsync() == false) { throw new FileNotFoundException("file does not exist", sourceFilepath); };
+                if (await zippedBlob.ExistsAsync() == false) { throw new FileNotFoundException("file does not exist", sourceFilepath); };
                 log.LogInformation($"{sourceFilepath} exists, unzipping it");
 
                 using var archive = new ZipArchive(await zippedBlob.OpenReadAsync());
