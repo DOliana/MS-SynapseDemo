@@ -73,6 +73,7 @@ namespace synapse_funcs
             }
             catch (Exception ex)
             {
+                log.LogError(ex, ex.Message);
                 return new ObjectResult(ex.Message)
                 {
                     StatusCode = (int)HttpStatusCode.InternalServerError
