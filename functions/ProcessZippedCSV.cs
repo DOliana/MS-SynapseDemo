@@ -34,12 +34,14 @@ namespace synapse_funcs
             string sourceContainerName = req.Query["sourceContainerName"];
             string targetContainerName = req.Query["targetContainerName"];
 
-            log.LogInformation($"checking file {sourceFilepath}");
+            log.LogInformation($"processing file {sourceFilepath} in countainer {sourceContainerName}");
+
 
             var sourceStorageClient = new BlobServiceClient(
                 new Uri($"https://{sourceStorageAccountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
             var sourceContainer = sourceStorageClient.GetBlobContainerClient(sourceContainerName);
+            
             var targetStorageClient = new BlobServiceClient(
                 new Uri($"https://{targetStorageAccountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
@@ -49,10 +51,14 @@ namespace synapse_funcs
             try
             {
                 var zippedBlob = sourceContainer.GetBlobClient(sourceFilepath);
-                using ZipArchive archive = new ZipArchive(await zippedBlob.OpenReadAsync());
-                List<string> files = new List<string>();
+                if(await zippedBlob.ExistsAsync() == false) { throw new FileNotFoundException("file does not exist", sourceFilepath); };
+                log.LogInformation($"{sourceFilepath} exists, unzipping it");
+
+                using var archive = new ZipArchive(await zippedBlob.OpenReadAsync());
+                var files = new List<string>();
                 foreach (var entry in archive.Entries)
                 {
+                    log.LogInformation($"processing zipped entry {entry.FullName}");
                     await using var fileStream = entry.Open();
                     await targetContainer.UploadBlobAsync(entry.Name, fileStream);
                     files.Add(entry.Name);
