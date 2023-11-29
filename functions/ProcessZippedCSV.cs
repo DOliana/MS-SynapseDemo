@@ -27,12 +27,13 @@ namespace synapse_funcs
 
         [FunctionName("ProcessZippedCSV")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = "?sourceContainer={sourceContainerName}&sourceFilepath={sourceFilepath}&targetContainer={targetContainerName}")] HttpRequest req,
-            string sourceFilepath,
-            string sourceContainerName,
-            string targetContainerName,
+            [HttpTrigger(AuthorizationLevel.Function, "put", Route = null)] HttpRequest req,
             ILogger log)
         {
+            string sourceFilepath = req.Query["sourceFilePath"];
+            string sourceContainerName = req.Query["sourceContainerName"];
+            string targetContainerName = req.Query["targetContainerName "];
+
             log.LogInformation($"checking file {sourceFilepath}");
 
             var sourceStorageClient = new BlobServiceClient(
