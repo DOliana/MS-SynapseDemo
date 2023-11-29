@@ -41,5 +41,5 @@ jobs:
         with:
           app-name: 'doli-synapse-funcs'
           slot-name: 'Production'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          package: './output'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_89DBBFA2C6614C28B0B2EE866EAE7D6E }}
