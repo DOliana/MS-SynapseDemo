@@ -30,9 +30,9 @@ namespace synapse_funcs
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = null)] HttpRequest req,
             ILogger log)
         {
-            string sourceFilepath = req.Query["sourceFilePath"];
+            string sourceFilepath = req.Query["sourceFilepath"];
             string sourceContainerName = req.Query["sourceContainerName"];
-            string targetContainerName = req.Query["targetContainerName "];
+            string targetContainerName = req.Query["targetContainerName"];
 
             log.LogInformation($"checking file {sourceFilepath}");
 
