@@ -1,0 +1,24 @@
+{
+	"name": "unzipFile",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureFunction",
+		"typeProperties": {
+			"functionAppUrl": "https://doli-synapse-funcs.azurewebsites.net",
+			"functionKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "demoKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "function-unzip-key"
+			},
+			"authentication": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

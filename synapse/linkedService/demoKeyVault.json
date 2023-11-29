@@ -1,0 +1,11 @@
+{
+	"name": "demoKeyVault",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://doli-synapse-kv.vault.azure.net/"
+		}
+	}
+}

@@ -1,0 +1,29 @@
+{
+	"name": "zip file dropped",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "process dropped zip files",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"droppedFileName": "@trigger().outputs.body.fileName",
+					"droppedFileFolder": "@trigger().outputs.body.folderPath"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/droptest/blobs/",
+			"blobPathEndsWith": ".zip",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/353099b6-d7fd-4a9f-9136-d6e0c310318b/resourceGroups/synapse-demo/providers/Microsoft.Storage/storageAccounts/dolidrop",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

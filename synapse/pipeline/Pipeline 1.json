@@ -1,0 +1,51 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "get Min Max TripTimes",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "get Min Max TripTimes",
+						"type": "DataFlowReference",
+						"parameters": {
+							"pathToParquetFile": {
+								"value": "'@{concat(pipeline().parameters.addedFileFolderPath, pipeline().parameters.addedFileName)}'",
+								"type": "Expression"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "None",
+					"cacheSinks": {
+						"firstRowOnly": true
+					}
+				}
+			}
+		],
+		"parameters": {
+			"addedFileFolderPath": {
+				"type": "string"
+			},
+			"addedFileName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-11-29T13:01:32Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

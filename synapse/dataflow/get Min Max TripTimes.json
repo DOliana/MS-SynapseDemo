@@ -1,0 +1,73 @@
+{
+	"name": "get Min Max TripTimes",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "doli-synapsedemo-WorkspaceDefaultStorage",
+						"type": "LinkedServiceReference"
+					},
+					"name": "dataToLoad"
+				}
+			],
+			"sinks": [
+				{
+					"name": "minMaxDate"
+				}
+			],
+			"transformations": [
+				{
+					"name": "getMinMaxDate"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     pathToParquetFile as string",
+				"}",
+				"source(output(",
+				"          vendorID as integer,",
+				"          lpepPickupDatetime as timestamp,",
+				"          lpepDropoffDatetime as timestamp,",
+				"          passengerCount as integer,",
+				"          tripDistance as double,",
+				"          puLocationId as string,",
+				"          doLocationId as string,",
+				"          pickupLongitude as double,",
+				"          pickupLatitude as double,",
+				"          dropoffLongitude as double,",
+				"          dropoffLatitude as double,",
+				"          rateCodeID as integer,",
+				"          storeAndFwdFlag as string,",
+				"          paymentType as integer,",
+				"          fareAmount as double,",
+				"          extra as double,",
+				"          mtaTax as double,",
+				"          improvementSurcharge as string,",
+				"          tipAmount as double,",
+				"          tollsAmount as double,",
+				"          ehailFee as double,",
+				"          totalAmount as double,",
+				"          tripType as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'raw',",
+				"     compressionCodec: 'snappy',",
+				"     wildcardPaths:[($pathToParquetFile)]) ~> dataToLoad",
+				"dataToLoad aggregate(minTripDateTime = min(lpepPickupDatetime),",
+				"          maxTripDateTime = max(lpepDropoffDatetime)) ~> getMinMaxDate",
+				"getMinMaxDate sink(validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     store: 'cache',",
+				"     format: 'inline',",
+				"     output: true,",
+				"     saveOrder: 1) ~> minMaxDate"
+			]
+		}
+	}
+}
