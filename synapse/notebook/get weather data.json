@@ -1,0 +1,211 @@
+{
+	"name": "get weather data",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "sparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "ebaf9653-6540-4077-a334-3cd95bd96a49"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/353099b6-d7fd-4a9f-9136-d6e0c310318b/resourceGroups/synapse-demo/providers/Microsoft.Synapse/workspaces/doli-synapsedemo/bigDataPools/sparkPool",
+				"name": "sparkPool",
+				"type": "Spark",
+				"endpoint": "https://doli-synapsedemo.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Gets historical weather data.\r\n",
+					"sample code from here: https://open-meteo.com/en/docs/historical-weather-api#hourly=temperature_2m,rain,snowfall"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"# Parameters required to run this notebook\r\n",
+					"start_date = \"2020-01-01\"\r\n",
+					"end_date = \"2020-01-03\"\r\n",
+					"latitude = 40.71427\r\n",
+					"longitude = -74.00597\r\n",
+					"targetADLSName = \"doli-synapsedemo-WorkspaceDefaultStorage\"\r\n",
+					"targetADLSFilesystem = \"enriched\""
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": true
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pip install openmeteo-requests requests-cache retry-requests "
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"import openmeteo_requests\r\n",
+					"import datetime\r\n",
+					"\r\n",
+					"import requests_cache\r\n",
+					"import pandas as pd\r\n",
+					"from retry_requests import retry\r\n",
+					"\r\n",
+					"# # create list of days for a parallelized for loop\r\n",
+					"# start = datetime.datetime.strptime(start_date, \"%Y-%m-%d\")\r\n",
+					"# end = datetime.datetime.strptime(end_date, \"%Y-%m-%d\")\r\n",
+					"# date_generated = [start + datetime.timedelta(days=x) for x in range(0, (end-start).days + 1)]\r\n",
+					"\r\n",
+					"# for date in date_generated:\r\n",
+					"#     print(date.strftime(\"%Y-%m-%d\"))"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"# Setup the Open-Meteo API client with cache and retry on error\r\n",
+					"cache_session = requests_cache.CachedSession('.cache', expire_after = -1)\r\n",
+					"retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)\r\n",
+					"openmeteo = openmeteo_requests.Client(session = retry_session)\r\n",
+					"\r\n",
+					"# Make sure all required weather variables are listed here\r\n",
+					"# The order of variables in hourly or daily is important to assign them correctly below\r\n",
+					"url = \"https://archive-api.open-meteo.com/v1/archive\"\r\n",
+					"params = {\r\n",
+					"\t\"latitude\": latitude,\r\n",
+					"\t\"longitude\": longitude,\r\n",
+					"\t\"start_date\": start_date,\r\n",
+					"\t\"end_date\": end_date,\r\n",
+					"\t\"hourly\": [\"temperature_2m\", \"rain\", \"snowfall\"]\r\n",
+					"}\r\n",
+					"responses = openmeteo.weather_api(url, params=params)\r\n",
+					"\r\n",
+					"# Process first location. Add a for-loop for multiple locations or weather models\r\n",
+					"response = responses[0]\r\n",
+					"print(f\"Coordinates {response.Latitude()}°E {response.Longitude()}°N\")\r\n",
+					"print(f\"Elevation {response.Elevation()} m asl\")\r\n",
+					"print(f\"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}\")\r\n",
+					"print(f\"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s\")\r\n",
+					"\r\n",
+					"# Process hourly data. The order of variables needs to be the same as requested.\r\n",
+					"hourly = response.Hourly()\r\n",
+					"hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()\r\n",
+					"hourly_rain = hourly.Variables(1).ValuesAsNumpy()\r\n",
+					"hourly_snowfall = hourly.Variables(2).ValuesAsNumpy()\r\n",
+					"\r\n",
+					"hourly_data = {\"date\": pd.date_range(\r\n",
+					"\tstart = pd.to_datetime(hourly.Time(), unit = \"s\"),\r\n",
+					"\tend = pd.to_datetime(hourly.TimeEnd(), unit = \"s\"),\r\n",
+					"\tfreq = pd.Timedelta(seconds = hourly.Interval()),\r\n",
+					"\tinclusive = \"left\"\r\n",
+					")}\r\n",
+					"hourly_data[\"temperature_2m\"] = hourly_temperature_2m\r\n",
+					"hourly_data[\"rain\"] = hourly_rain\r\n",
+					"hourly_data[\"snowfall\"] = hourly_snowfall\r\n",
+					"\r\n",
+					"hourly_dataframe = pd.DataFrame(data = hourly_data)\r\n",
+					"# print(hourly_dataframe)\r\n",
+					"\r\n",
+					"mssparkutils.notebook.exit(hourly_dataframe)\r\n",
+					"\r\n",
+					"#write parquet file\r\n",
+					"hourly_dataframe.to_parquet('abfs[s]://' + targetADLSFilesystem + '@' + targetADLSName + '.dfs.core.windows.net/weather/' + start_date)\r\n",
+					""
+				],
+				"execution_count": null
+			}
+		]
+	}
+}
