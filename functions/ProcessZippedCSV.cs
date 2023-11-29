@@ -43,7 +43,7 @@ namespace synapse_funcs
                 new DefaultAzureCredential());
             var targetContainer = targetStorageClient.GetBlobContainerClient(parameters.TargetContainerName);
 
-            if(string.IsNullOrWhiteSpace( parameters.RunId)) { throw new InvalidOperationException($"parameter runid must be set"); }
+            if (string.IsNullOrWhiteSpace(parameters.RunId)) { throw new InvalidOperationException($"parameter runid must be set"); }
 
 
             try
@@ -68,7 +68,8 @@ namespace synapse_funcs
                 }
                 files.Sort();
 
-                var fileList = targetContainer.GetBlobClient(Path.Combine(parameters.TargetFolderPath, parameters.RunId));
+                var fileListPath = parameters.TargetFolderPath + "/" + parameters.RunId + ".txt";
+                var fileList = targetContainer.GetBlobClient(fileListPath);
                 using var ms = new MemoryStream(Encoding.UTF8.GetBytes(String.Join(Environment.NewLine, files)));
                 await fileList.UploadAsync(ms, overwrite: true);
 
@@ -76,7 +77,7 @@ namespace synapse_funcs
                 {
                     writtenFileCount = files.Count,
                     files = files,
-                    fileList = Path.Combine(parameters.TargetFolderPath, parameters.RunId)
+                    fileList = fileListPath
                 });
             }
             catch (Exception ex)
