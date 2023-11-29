@@ -27,36 +27,30 @@ namespace synapse_funcs
 
         [FunctionName("ProcessZippedCSV")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "put", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "put", Route = null)] ProcessFilesParameters parameters,
             ILogger log)
         {
-            string sourceFilepath = req.Query["sourceFilepath"];
-            string sourceContainerName = req.Query["sourceContainerName"];
-            string targetContainerName = req.Query["targetContainerName"];
-            string targetFolderPath = req.Query["targetFolderName"];
-
-            log.LogInformation($"processing file {sourceFilepath} in container {sourceContainerName}");
-
+            log.LogInformation($"processing file {parameters.SourceFilepath} in container {parameters.SourceContainerName}");
 
             var sourceStorageClient = new BlobServiceClient(
                 new Uri($"https://{sourceStorageAccountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
-            var sourceContainer = sourceStorageClient.GetBlobContainerClient(sourceContainerName);
+            var sourceContainer = sourceStorageClient.GetBlobContainerClient(parameters.SourceContainerName);
 
             var targetStorageClient = new BlobServiceClient(
                 new Uri($"https://{targetStorageAccountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
-            var targetContainer = targetStorageClient.GetBlobContainerClient(targetContainerName);
+            var targetContainer = targetStorageClient.GetBlobContainerClient(parameters.TargetContainerName);
 
 
             try
             {
-                if (await sourceContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the source container {sourceContainerName} dose not exist."); }
-                if (await targetContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the target container {targetContainerName} dose not exist."); }
+                if (await sourceContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the source container {parameters.SourceContainerName} dose not exist."); }
+                if (await targetContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the target container {parameters.TargetContainerName} dose not exist."); }
 
-                var zippedBlob = sourceContainer.GetBlobClient(sourceFilepath);
-                if (await zippedBlob.ExistsAsync() == false) { throw new FileNotFoundException("file does not exist", sourceFilepath); };
-                log.LogInformation($"{sourceFilepath} exists, unzipping it");
+                var zippedBlob = sourceContainer.GetBlobClient(parameters.SourceFilepath);
+                if (await zippedBlob.ExistsAsync() == false) { throw new FileNotFoundException("file does not exist", parameters.SourceFilepath); };
+                log.LogInformation($"{parameters.SourceFilepath} exists, unzipping it");
 
                 using var archive = new ZipArchive(await zippedBlob.OpenReadAsync());
                 var files = new List<string>();
@@ -64,9 +58,9 @@ namespace synapse_funcs
                 {
                     log.LogInformation($"processing zipped entry {entry.FullName}");
                     await using var fileStream = entry.Open();
-                    var targetPath = Path.Combine(targetFolderPath, entry.Name);
+                    var targetPath = Path.Combine(parameters.TargetFolderPath, entry.Name);
                     if(await targetContainer.GetBlobClient(targetPath).DeleteIfExistsAsync()) { log.LogInformation($"target file existed - overwriting. {targetPath}"); }
-                    await targetContainer.UploadBlobAsync(Path.Combine(targetFolderPath, entry.Name), fileStream);
+                    await targetContainer.UploadBlobAsync(Path.Combine(parameters.TargetFolderPath, entry.Name), fileStream);
                     files.Add(entry.Name);
                 }
                 files.Sort();
