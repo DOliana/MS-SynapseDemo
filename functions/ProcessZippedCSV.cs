@@ -33,6 +33,7 @@ namespace synapse_funcs
             string sourceFilepath = req.Query["sourceFilepath"];
             string sourceContainerName = req.Query["sourceContainerName"];
             string targetContainerName = req.Query["targetContainerName"];
+            string targetFolderPath = req.Query["targetFolderName"];
 
             log.LogInformation($"processing file {sourceFilepath} in container {sourceContainerName}");
 
@@ -63,7 +64,9 @@ namespace synapse_funcs
                 {
                     log.LogInformation($"processing zipped entry {entry.FullName}");
                     await using var fileStream = entry.Open();
-                    await targetContainer.UploadBlobAsync(entry.Name, fileStream);
+                    var targetPath = Path.Combine(targetFolderPath, entry.Name);
+                    if(await targetContainer.GetBlobClient(targetPath).DeleteIfExistsAsync()) { log.LogInformation($"target file existed - overwriting. {targetPath}"); }
+                    await targetContainer.UploadBlobAsync(Path.Combine(targetFolderPath, entry.Name), fileStream);
                     files.Add(entry.Name);
                 }
                 files.Sort();
