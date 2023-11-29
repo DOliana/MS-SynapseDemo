@@ -64,7 +64,7 @@ namespace synapse_funcs
                     var targetPath = Path.Combine(parameters.TargetFolderPath, entry.Name);
                     if (await targetContainer.GetBlobClient(targetPath).DeleteIfExistsAsync()) { log.LogInformation($"target file existed - overwriting. {targetPath}"); }
                     await targetContainer.UploadBlobAsync(targetPath, fileStream);
-                    files.Add(parameters.TargetContainerName + "/" + targetPath);
+                    files.Add(targetPath);
                 }
                 files.Sort();
 
