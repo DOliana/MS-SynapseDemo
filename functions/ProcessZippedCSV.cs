@@ -43,6 +43,8 @@ namespace synapse_funcs
                 new DefaultAzureCredential());
             var targetContainer = targetStorageClient.GetBlobContainerClient(parameters.TargetContainerName);
 
+            if(string.IsNullOrWhiteSpace( parameters.RunId)) { throw new InvalidOperationException($"parameter runid must be set"); }
+
 
             try
             {
