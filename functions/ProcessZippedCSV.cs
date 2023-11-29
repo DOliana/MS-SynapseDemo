@@ -31,12 +31,14 @@ namespace synapse_funcs
             [HttpTrigger(AuthorizationLevel.Function, "put", Route = null)] ProcessFilesParameters parameters,
             ILogger log)
         {
-            log.LogInformation($"processing file {parameters.SourceFilepath} in container {parameters.SourceContainerName}");
+            log.LogInformation($"processing file {parameters.SourceFilepath} in path {parameters.SourceContainerName}");
 
             var sourceStorageClient = new BlobServiceClient(
                 new Uri($"https://{sourceStorageAccountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
-            var sourceContainer = sourceStorageClient.GetBlobContainerClient(parameters.SourceContainerName);
+            var sourceContainerName = parameters.SourceContainerName.Split('/')[0];
+            var sourceContainer = sourceStorageClient.GetBlobContainerClient(sourceContainerName);
+            var sourceFilePath = String.Join('/', parameters.SourceContainerName.Split('/').Skip(1)) + '/' + parameters.SourceFilepath;
 
             var targetStorageClient = new BlobServiceClient(
                 new Uri($"https://{targetStorageAccountName}.blob.core.windows.net"),
@@ -51,9 +53,9 @@ namespace synapse_funcs
                 if (await sourceContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the source container {parameters.SourceContainerName} dose not exist."); }
                 if (await targetContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the target container {parameters.TargetContainerName} dose not exist."); }
 
-                var zippedBlob = sourceContainer.GetBlobClient(parameters.SourceFilepath);
-                if (await zippedBlob.ExistsAsync() == false) { throw new FileNotFoundException("file does not exist", parameters.SourceFilepath); };
-                log.LogInformation($"{parameters.SourceFilepath} exists, unzipping it");
+                var zippedBlob = sourceContainer.GetBlobClient(sourceFilePath);
+                if (await zippedBlob.ExistsAsync() == false) { throw new FileNotFoundException("file does not exist", sourceFilePath); };
+                log.LogInformation($"{sourceFilePath} exists, unzipping it");
 
                 using var archive = new ZipArchive(await zippedBlob.OpenReadAsync());
                 var files = new List<string>();
