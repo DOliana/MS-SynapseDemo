@@ -34,7 +34,7 @@ namespace synapse_funcs
             string sourceContainerName = req.Query["sourceContainerName"];
             string targetContainerName = req.Query["targetContainerName"];
 
-            log.LogInformation($"processing file {sourceFilepath} in countainer {sourceContainerName}");
+            log.LogInformation($"processing file {sourceFilepath} in container {sourceContainerName}");
 
 
             var sourceStorageClient = new BlobServiceClient(
@@ -50,6 +50,7 @@ namespace synapse_funcs
 
             try
             {
+                if (await sourceContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the source container {sourceContainerName} dose not exist."); }
                 if (await targetContainer.ExistsAsync() == false) { throw new DirectoryNotFoundException($"the target container {targetContainerName} dose not exist."); }
 
                 var zippedBlob = sourceContainer.GetBlobClient(sourceFilepath);
