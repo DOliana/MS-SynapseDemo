@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "Pipeline 1",
+					"referenceName": "get Weather Date for trips",
 					"type": "PipelineReference"
 				},
 				"parameters": {
