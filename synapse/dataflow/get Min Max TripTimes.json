@@ -14,7 +14,7 @@
 			],
 			"sinks": [
 				{
-					"name": "minMaxDate"
+					"name": "minMaxDateSink"
 				}
 			],
 			"transformations": [
@@ -58,15 +58,15 @@
 				"     fileSystem: 'raw',",
 				"     compressionCodec: 'snappy',",
 				"     wildcardPaths:[($pathToParquetFile)]) ~> dataToLoad",
-				"dataToLoad aggregate(minTripDateTime = min(lpepPickupDatetime),",
-				"          maxTripDateTime = max(lpepDropoffDatetime)) ~> getMinMaxDate",
+				"dataToLoad aggregate(minTripDate = toString(min(lpepPickupDatetime), 'yyyy-MM-dd'),",
+				"          maxTripDate = toString(max(lpepDropoffDatetime), 'yyyy-MM-dd')) ~> getMinMaxDate",
 				"getMinMaxDate sink(validateSchema: false,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     store: 'cache',",
 				"     format: 'inline',",
 				"     output: true,",
-				"     saveOrder: 1) ~> minMaxDate"
+				"     saveOrder: 1) ~> minMaxDateSink"
 			]
 		}
 	}

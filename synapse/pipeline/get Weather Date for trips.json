@@ -1,5 +1,5 @@
 {
-	"name": "Pipeline 1",
+	"name": "get Weather Date for trips",
 	"properties": {
 		"activities": [
 			{
@@ -20,7 +20,7 @@
 						"type": "DataFlowReference",
 						"parameters": {
 							"pathToParquetFile": {
-								"value": "'@{concat(pipeline().parameters.addedFileFolderPath, pipeline().parameters.addedFileName)}'",
+								"value": "'@{concat(pipeline().parameters.addedFileFolderPath, '/', pipeline().parameters.addedFileName)}'",
 								"type": "Expression"
 							}
 						}
@@ -33,6 +33,49 @@
 					"cacheSinks": {
 						"firstRowOnly": true
 					}
+				}
+			},
+			{
+				"name": "get weather data",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "get Min Max TripTimes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "get weather data",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"start_date": {
+							"value": {
+								"value": "@activity('get Min Max TripTimes').output.runStatus.output.minMaxDateSink.value[0].minTripDate",
+								"type": "Expression"
+							},
+							"type": "string"
+						},
+						"end_date": {
+							"value": {
+								"value": "@activity('get Min Max TripTimes').output.runStatus.output.minMaxDateSink.value[0].maxTripDate",
+								"type": "Expression"
+							},
+							"type": "string"
+						}
+					},
+					"snapshot": true
 				}
 			}
 		],
