@@ -1,5 +1,5 @@
 {
-	"name": "get weather data",
+	"name": "get hourly weather data for days",
 	"properties": {
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "20b1bf29-4e02-4c1a-b880-d5adb5346ef2"
+				"spark.autotune.trackingId": "c6a5275b-c9ad-41c1-a6f7-ac714b2c9ea6"
 			}
 		},
 		"metadata": {
