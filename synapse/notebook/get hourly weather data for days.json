@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c6a5275b-c9ad-41c1-a6f7-ac714b2c9ea6"
+				"spark.autotune.trackingId": "015ccc6c-bfc2-4279-8729-08eac0b4f074"
 			}
 		},
 		"metadata": {
@@ -95,6 +95,7 @@
 					"# Parameters required to run this notebook\r\n",
 					"start_date = \"2020-01-01\"\r\n",
 					"end_date = \"2020-01-03\"\r\n",
+					"# new york coordinates for demo\r\n",
 					"latitude = 40.71427\r\n",
 					"longitude = -74.00597\r\n",
 					"targetADLSName = \"dolilake\"\r\n",
