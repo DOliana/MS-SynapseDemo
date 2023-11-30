@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7bb98c93-629b-4a6d-ae1d-ab3d3afae224"
+				"spark.autotune.trackingId": "20b1bf29-4e02-4c1a-b880-d5adb5346ef2"
 			}
 		},
 		"metadata": {
@@ -94,13 +94,13 @@
 				"source": [
 					"# Parameters required to run this notebook\r\n",
 					"start_date = \"2020-01-01\"\r\n",
-					"end_date = \"2020-01-01\"\r\n",
+					"end_date = \"2020-01-03\"\r\n",
 					"latitude = 40.71427\r\n",
 					"longitude = -74.00597\r\n",
 					"targetADLSName = \"dolilake\"\r\n",
 					"targetADLSFilesystem = \"enriched\""
 				],
-				"execution_count": 9
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -131,6 +131,19 @@
 					"from retry_requests import retry"
 				],
 				"execution_count": 11
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				]
 			},
 			{
 				"cell_type": "code",
