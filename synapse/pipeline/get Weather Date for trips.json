@@ -15,16 +15,6 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataflow": {
-						"referenceName": "get Min Max TripTimes",
-						"type": "DataFlowReference",
-						"parameters": {
-							"pathToParquetFile": {
-								"value": "'@{concat(pipeline().parameters.addedFileFolderPath, '/', pipeline().parameters.addedFileName)}'",
-								"type": "Expression"
-							}
-						}
-					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
