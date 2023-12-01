@@ -56,7 +56,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "get weather data",
+						"referenceName": "get hourly weather data for days",
 						"type": "NotebookReference"
 					},
 					"parameters": {
